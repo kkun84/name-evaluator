@@ -47,9 +47,7 @@ describe('NameApp component', () => {
 
   it('shows instructions before any input', () => {
     render(React.createElement(NameApp));
-    expect(
-      screen.getByText('名字と名前を入力し、「結果を表示」を押すと結果が表示されます。')
-    ).toBeInTheDocument();
+    expect(screen.getByText('ここに結果が表示されます。')).toBeInTheDocument();
   });
 
   it('renders evaluation after entering both fields', async () => {
