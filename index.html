@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>至福の命名大吉診断</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles/main.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero__content">
+          <p class="hero__kicker">赤ちゃんの名づけに寄り添う吉兆診断</p>
+          <h1 class="hero__title">至福の命名大吉診断</h1>
+          <p class="hero__lead">
+            お名前の画数から、未来を寿ぐ大吉のメッセージをお届けします。すべてのご家庭に祝福を。
+          </p>
+        </div>
+      </header>
+      <main class="main">
+        <section class="panel" aria-labelledby="form-title">
+          <div class="panel__header">
+            <h2 id="form-title" class="panel__title">お名前を入力してください</h2>
+            <p class="panel__subtitle">ひらがな・カタカナ・漢字に対応しています。</p>
+          </div>
+          <form id="fortune-form" class="form" autocomplete="off">
+            <label class="form__label" for="name-input">お名前</label>
+            <div class="form__group">
+              <input
+                id="name-input"
+                class="form__input"
+                type="text"
+                name="name"
+                required
+                minlength="1"
+                maxlength="12"
+                placeholder="例）陽菜"
+                aria-describedby="name-hint"
+              />
+              <button class="form__button" type="submit">大吉を占う</button>
+            </div>
+            <p id="name-hint" class="form__hint">最大12文字まで入力できます。</p>
+          </form>
+        </section>
+        <section class="panel panel--result" id="result-section" aria-live="polite" hidden>
+          <div class="panel__header">
+            <h2 class="panel__title">診断結果</h2>
+            <p class="panel__subtitle">大吉の輝きに満ちた未来が訪れます。</p>
+          </div>
+          <div class="result" id="result-content"></div>
+        </section>
+      </main>
+      <footer class="footer">
+        <small class="footer__note">&copy; 至福の命名大吉診断 — すべてのご家庭に幸せを。</small>
+      </footer>
+    </div>
+    <div class="animation" id="animation-overlay" aria-hidden="true">
+      <div class="animation__veil"></div>
+      <div class="animation__core">
+        <div class="animation__slot" id="animation-slot"></div>
+      </div>
+    </div>
+    <script type="module" src="assets/scripts/main.js"></script>
+  </body>
+</html>
