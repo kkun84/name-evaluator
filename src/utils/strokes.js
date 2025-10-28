@@ -18,9 +18,43 @@ function buildKanjiUrl(char) {
   return `${API_BASE_URL}/${encodeURIComponent(char)}`;
 }
 
+/**
+ * Estimate stroke count for a character if API lookup fails.
+ * Uses Unicode ranges for CJK characters to provide a better estimate.
+ * - CJK Unified Ideographs: average ~10 strokes
+ * - Hiragana: average ~3 strokes
+ * - Katakana: average ~3 strokes
+ * - Hangul Syllables: average ~2 strokes
+ * Returns 0 for whitespace, 1 for other characters.
+ */
 function fallbackStrokeCount(char) {
   if (!char || /\s/.test(char)) {
     return 0;
+  }
+  const code = char.codePointAt(0);
+  // CJK Unified Ideographs
+  if (
+    (code >= 0x4E00 && code <= 0x9FFF) || // CJK Unified Ideographs
+    (code >= 0x3400 && code <= 0x4DBF) || // CJK Unified Ideographs Extension A
+    (code >= 0x20000 && code <= 0x2A6DF) || // Extension B
+    (code >= 0x2A700 && code <= 0x2B73F) || // Extension C
+    (code >= 0x2B740 && code <= 0x2B81F) || // Extension D
+    (code >= 0x2B820 && code <= 0x2CEAF) || // Extension E
+    (code >= 0xF900 && code <= 0xFAFF) // CJK Compatibility Ideographs
+  ) {
+    return 10;
+  }
+  // Hiragana
+  if (code >= 0x3040 && code <= 0x309F) {
+    return 3;
+  }
+  // Katakana
+  if (code >= 0x30A0 && code <= 0x30FF) {
+    return 3;
+  }
+  // Hangul Syllables
+  if (code >= 0xAC00 && code <= 0xD7AF) {
+    return 2;
   }
   return 1;
 }
