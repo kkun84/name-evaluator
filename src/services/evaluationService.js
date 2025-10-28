@@ -1,4 +1,4 @@
-import { calculateNameStrokes } from '../utils/strokes.js';
+import { defaultStrokeResolver } from '../utils/strokes.js';
 import { modularPow, SMALL_PRIMES } from '../utils/primes.js';
 
 const FORTUNES = [
@@ -12,10 +12,10 @@ const FORTUNES = [
 
 const MODULUS = 251n;
 
-export function createEvaluationService() {
-  function evaluate({ surname, given }) {
-    const surnameMetrics = calculateNameStrokes(surname);
-    const givenMetrics = calculateNameStrokes(given);
+export function createEvaluationService({ strokeResolver = defaultStrokeResolver } = {}) {
+  async function evaluate({ surname, given }) {
+    const surnameMetrics = await strokeResolver.calculateNameStrokes(surname);
+    const givenMetrics = await strokeResolver.calculateNameStrokes(given);
     const total = surnameMetrics.total + givenMetrics.total;
 
     const powerA = modularPow(SMALL_PRIMES[0], BigInt(surnameMetrics.total), MODULUS);
