@@ -12,7 +12,7 @@ describe('NameApp component', () => {
   it('shows instructions before any input', () => {
     render(React.createElement(NameApp));
     expect(
-      screen.getByText('苗字と名前を入力すると結果が表示されます。')
+      screen.getByText('苗字と名前を入力し、「結果を表示」を押すと結果が表示されます。')
     ).toBeInTheDocument();
   });
 
@@ -26,6 +26,7 @@ describe('NameApp component', () => {
     await act(async () => {
       await user.type(surnameInput, '山田');
       await user.type(givenInput, '太郎');
+      await user.click(screen.getByRole('button', { name: '結果を表示' }));
     });
 
     expect(await screen.findByText('苗字の画数')).toBeInTheDocument();

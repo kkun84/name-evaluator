@@ -1,5 +1,5 @@
 export function createNameApp({ React, evaluationService }) {
-  const { useState, useMemo } = React;
+  const { useState } = React;
 
   function renderStrokeList(label, metrics) {
     if (!metrics || metrics.breakdown.length === 0) {
@@ -39,13 +39,36 @@ export function createNameApp({ React, evaluationService }) {
   function NameApp() {
     const [surname, setSurname] = useState('');
     const [given, setGiven] = useState('');
+    const [evaluation, setEvaluation] = useState(null);
+    const [hasSubmitted, setHasSubmitted] = useState(false);
 
-    const evaluation = useMemo(() => {
-      if (!surname && !given) {
-        return null;
+    function updateInput(setter) {
+      return (event) => {
+        setter(event.target.value);
+        setHasSubmitted(false);
+        setEvaluation(null);
+      };
+    }
+
+    function handleSubmit(event) {
+      event.preventDefault();
+      const trimmedSurname = surname.trim();
+      const trimmedGiven = given.trim();
+
+      if (!trimmedSurname && !trimmedGiven) {
+        setEvaluation(null);
+        setHasSubmitted(true);
+        return;
       }
-      return evaluationService.evaluate({ surname, given });
-    }, [surname, given]);
+
+      const nextEvaluation = evaluationService.evaluate({
+        surname: trimmedSurname,
+        given: trimmedGiven
+      });
+
+      setEvaluation(nextEvaluation);
+      setHasSubmitted(true);
+    }
 
     const fortuneTone = evaluation ? evaluation.fortune : null;
 
@@ -64,23 +87,32 @@ export function createNameApp({ React, evaluationService }) {
         React.createElement(
           'section',
           { className: 'form-section' },
-          React.createElement('label', { htmlFor: 'surname' }, '苗字'),
-          React.createElement('input', {
-            id: 'surname',
-            type: 'text',
-            value: surname,
-            onChange: (event) => setSurname(event.target.value),
-            placeholder: '山田'
-          }),
-          React.createElement('label', { htmlFor: 'given' }, '名前'),
-          React.createElement('input', {
-            id: 'given',
-            type: 'text',
-            value: given,
-            onChange: (event) => setGiven(event.target.value),
-            placeholder: '太郎'
-          }),
-          fortuneTone
+          React.createElement(
+            'form',
+            { onSubmit: handleSubmit },
+            React.createElement('label', { htmlFor: 'surname' }, '苗字'),
+            React.createElement('input', {
+              id: 'surname',
+              type: 'text',
+              value: surname,
+              onChange: updateInput(setSurname),
+              placeholder: '山田'
+            }),
+            React.createElement('label', { htmlFor: 'given' }, '名前'),
+            React.createElement('input', {
+              id: 'given',
+              type: 'text',
+              value: given,
+              onChange: updateInput(setGiven),
+              placeholder: '太郎'
+            }),
+            React.createElement(
+              'button',
+              { type: 'submit', className: 'submit-button' },
+              '結果を表示'
+            )
+          ),
+          hasSubmitted && fortuneTone
             ? React.createElement(
                 'div',
                 { className: 'fortune-panel', style: { borderColor: fortuneTone.accent } },
@@ -94,27 +126,33 @@ export function createNameApp({ React, evaluationService }) {
             : React.createElement(
                 'div',
                 { className: 'fortune-panel placeholder' },
-                React.createElement('p', null, '苗字と名前を入力すると結果が表示されます。')
+                React.createElement(
+                  'p',
+                  null,
+                  '苗字と名前を入力し、「結果を表示」を押すと結果が表示されます。'
+                )
               )
         ),
-        React.createElement(
-          'section',
-          { className: 'result-section' },
-          React.createElement(
-            'div',
-            { className: 'stroke-container' },
-            renderStrokeList('苗字の画数', evaluation && evaluation.surnameMetrics),
-            renderStrokeList('名前の画数', evaluation && evaluation.givenMetrics)
-          ),
-          evaluation
-            ? React.createElement(
+        hasSubmitted
+          ? React.createElement(
+              'section',
+              { className: 'result-section' },
+              React.createElement(
                 'div',
-                { className: 'total-section' },
-                React.createElement('h3', null, '姓名全体の画数'),
-                React.createElement('strong', null, `${evaluation.total}画`)
-              )
-            : null
-        )
+                { className: 'stroke-container' },
+                renderStrokeList('苗字の画数', evaluation && evaluation.surnameMetrics),
+                renderStrokeList('名前の画数', evaluation && evaluation.givenMetrics)
+              ),
+              evaluation
+                ? React.createElement(
+                    'div',
+                    { className: 'total-section' },
+                    React.createElement('h3', null, '姓名全体の画数'),
+                    React.createElement('strong', null, `${evaluation.total}画`)
+                  )
+                : null
+            )
+          : null
       ),
       React.createElement(
         'footer',
