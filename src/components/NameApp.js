@@ -127,6 +127,99 @@ export function createNameApp({ React, evaluationService }) {
 
     const fortuneTone = evaluation && evaluation.fortunes ? evaluation.fortunes.full : null;
 
+    function renderSummaryPanel() {
+      const panelClassNames = ['summary-panel'];
+      const panelStyle = fortuneTone && !error ? { borderColor: fortuneTone.accent } : {};
+
+      if (!fortuneTone || error) {
+        panelClassNames.push('placeholder');
+      }
+
+      let content;
+
+      if (error) {
+        content = React.createElement('p', { className: 'summary-message error' }, error);
+      } else if (!hasSubmitted) {
+        content = React.createElement(
+          'p',
+          { className: 'summary-message muted' },
+          '姓名を入力して「結果を表示」を押すと、総合結果がここに表示されます。'
+        );
+      } else if (!evaluation) {
+        content = React.createElement(
+          'p',
+          { className: 'summary-message muted' },
+          '文字が入力されていません。'
+        );
+      } else {
+        content = React.createElement(
+          React.Fragment,
+          null,
+          React.createElement('span', { className: 'fortune-label' }, fortuneTone.label),
+          React.createElement(
+            'div',
+            { className: 'overall-score' },
+            React.createElement('span', { className: 'overall-score-value' }, `${evaluation.total}画`),
+            React.createElement('span', { className: 'overall-score-caption' }, '総合画数')
+          ),
+          hasPendingChanges
+            ? React.createElement(
+                'p',
+                { className: 'pending-hint' },
+                '入力内容が変更されています。最新の結果を表示するには「結果を表示」を押してください。'
+              )
+            : null
+        );
+      }
+
+      return React.createElement(
+        'div',
+        { className: panelClassNames.join(' '), style: panelStyle },
+        content
+      );
+    }
+
+    function renderResultPanel() {
+      if (evaluation) {
+        return React.createElement(
+          'div',
+          { className: 'result-panel' },
+          React.createElement(
+            'div',
+            { className: 'result-overview' },
+            fortuneTone
+              ? React.createElement(
+                  'span',
+                  {
+                    className: 'fortune-chip prominent',
+                    style: { borderColor: fortuneTone.accent, color: fortuneTone.accent }
+                  },
+                  fortuneTone.label
+                )
+              : null,
+            React.createElement('div', { className: 'result-score' }, `${evaluation.total}画`),
+            React.createElement('span', { className: 'result-score-caption' }, '姓名全体の画数')
+          ),
+          React.createElement(
+            'div',
+            { className: 'stroke-container' },
+            renderStrokeList('名字の画数', evaluation.surnameMetrics),
+            renderStrokeList('名前の画数', evaluation.givenMetrics)
+          )
+        );
+      }
+
+      const message = hasSubmitted
+        ? '入力された文字がありません。姓名を入力して結果を確認してください。'
+        : 'ここに詳細な結果が表示されます。';
+
+      return React.createElement(
+        'div',
+        { className: 'result-panel placeholder' },
+        React.createElement('p', null, message)
+      );
+    }
+
     return React.createElement(
       'div',
       { className: 'app-shell' },
@@ -139,91 +232,48 @@ export function createNameApp({ React, evaluationService }) {
         'main',
         null,
         React.createElement(
-          'section',
-          { className: 'form-section' },
+          'div',
+          { className: 'layout-grid' },
           React.createElement(
-            'form',
-            { onSubmit: handleSubmit },
-            React.createElement('label', { htmlFor: 'surname' }, '名字'),
-            React.createElement('input', {
-              id: 'surname',
-              type: 'text',
-              value: surname,
-              onChange: updateInput(setSurname),
-              placeholder: '山田'
-            }),
-            React.createElement('label', { htmlFor: 'given' }, '名前'),
-            React.createElement('input', {
-              id: 'given',
-              type: 'text',
-              value: given,
-              onChange: updateInput(setGiven),
-              placeholder: '太郎'
-            }),
+            'section',
+            { className: 'input-column' },
             React.createElement(
-              'button',
-              { type: 'submit', className: 'submit-button', disabled: isLoading },
-              isLoading ? '取得中…' : '結果を表示'
-            )
-          ),
-          hasSubmitted && fortuneTone && !error
-            ? React.createElement(
-                'div',
-                { className: 'fortune-panel', style: { borderColor: fortuneTone.accent } },
-                React.createElement('span', { className: 'fortune-label' }, fortuneTone.label),
-                hasPendingChanges && evaluation
-                  ? React.createElement(
-                      'p',
-                      { className: 'pending-hint' },
-                      '入力内容が変更されています。最新の結果を表示するには「結果を表示」を押してください。'
-                    )
-                  : null
-              )
-            : React.createElement(
-                'div',
-                { className: 'fortune-panel placeholder' },
+              'div',
+              { className: 'form-panel' },
+              React.createElement(
+                'form',
+                { onSubmit: handleSubmit },
+                React.createElement('label', { htmlFor: 'surname' }, '名字'),
+                React.createElement('input', {
+                  id: 'surname',
+                  type: 'text',
+                  value: surname,
+                  onChange: updateInput(setSurname),
+                  placeholder: '山田'
+                }),
+                React.createElement('label', { htmlFor: 'given' }, '名前'),
+                React.createElement('input', {
+                  id: 'given',
+                  type: 'text',
+                  value: given,
+                  onChange: updateInput(setGiven),
+                  placeholder: '太郎'
+                }),
                 React.createElement(
-                  'p',
-                  null,
-                  error
-                    ? error
-                    : 'ここに結果が表示されます。'
+                  'button',
+                  { type: 'submit', className: 'submit-button', disabled: isLoading },
+                  isLoading ? '取得中…' : '結果を表示'
                 )
               )
-        ),
-        hasSubmitted
-          ? React.createElement(
-              'section',
-              { className: 'result-section' },
-              React.createElement(
-                'div',
-                { className: 'stroke-container' },
-                renderStrokeList('名字の画数', evaluation && evaluation.surnameMetrics),
-                renderStrokeList('名前の画数', evaluation && evaluation.givenMetrics)
-              ),
-              evaluation
-                ? React.createElement(
-                    'div',
-                    { className: 'total-section' },
-                    React.createElement('h3', null, '姓名全体の画数'),
-                    React.createElement('div', { className: 'total-score' }, `${evaluation.total}画`),
-                    fortuneTone
-                      ? React.createElement(
-                          'span',
-                          {
-                            className: 'fortune-chip prominent',
-                            style: {
-                              borderColor: fortuneTone.accent,
-                              color: fortuneTone.accent
-                            }
-                          },
-                          fortuneTone.label
-                        )
-                      : null
-                  )
-                : null
-            )
-          : null
+            ),
+            renderSummaryPanel()
+          ),
+          React.createElement(
+            'section',
+            { className: 'result-column' },
+            renderResultPanel()
+          )
+        )
       )
     );
   }
