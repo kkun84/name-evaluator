@@ -7,25 +7,24 @@ describe('createEvaluationService', () => {
   it('returns deterministic results for the same input', () => {
     const first = service.evaluate({ surname: '山田', given: '太郎' });
     const second = service.evaluate({ surname: '山田', given: '太郎' });
-    expect(second.fortune.label).toEqual(first.fortune.label);
-    expect(second.total).toBe(first.total);
-    expect(second.totalFortune.label).toEqual(first.totalFortune.label);
+    expect(second.overall.fortune.label).toEqual(first.overall.fortune.label);
+    expect(second.overall.total).toBe(first.overall.total);
   });
 
   it('differentiates inputs with different characters', () => {
     const first = service.evaluate({ surname: '山田', given: '太郎' });
     const second = service.evaluate({ surname: '山田', given: '花子' });
-    expect(second.total).not.toBe(first.total);
+    expect(second.overall.total).not.toBe(first.overall.total);
   });
 
   it('calculates detailed stroke breakdowns', () => {
     const result = service.evaluate({ surname: '佐藤', given: '光' });
-    expect(result.surnameMetrics.breakdown.length).toBe(2);
-    expect(result.givenMetrics.breakdown.length).toBe(1);
-    expect(result.total).toBeGreaterThan(0);
-    expect(result.surnameMetrics.breakdown[0].fortune).toHaveProperty('label');
-    expect(result.givenMetrics.fortune).toHaveProperty('label');
-    expect(result.totalFortune).toHaveProperty('tone');
+    expect(result.surname.breakdown.length).toBe(2);
+    expect(result.given.breakdown.length).toBe(1);
+    expect(result.overall.total).toBeGreaterThan(0);
+    expect(result.surname.breakdown[0].fortune).toHaveProperty('label');
+    expect(result.given.fortune).toHaveProperty('label');
+    expect(result.overall.fortune).toHaveProperty('tone');
   });
 
   it('exposes the configured fortunes', () => {

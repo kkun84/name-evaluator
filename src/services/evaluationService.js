@@ -53,11 +53,12 @@ export function createEvaluationService() {
     const totalFortune = selectFortune(total, 173);
 
     return {
-      surnameMetrics,
-      givenMetrics,
-      total,
-      fortune: totalFortune,
-      totalFortune
+      surname: surnameMetrics,
+      given: givenMetrics,
+      overall: {
+        total,
+        fortune: totalFortune
+      }
     };
   }
 

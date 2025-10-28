@@ -24,7 +24,17 @@ export function createNameApp({ React, evaluationService }) {
             { key: `${item.char}-${index}` },
             React.createElement('span', { className: 'char' }, item.char),
             React.createElement('span', { className: 'stroke' }, `${item.strokes}画`),
-            React.createElement('span', { className: 'fortune-badge' }, item.fortune.label)
+            React.createElement(
+              'span',
+              {
+                className: 'fortune-badge',
+                style: {
+                  borderColor: item.fortune.accent,
+                  color: item.fortune.accent
+                }
+              },
+              item.fortune.label
+            )
           )
         )
       ),
@@ -37,7 +47,17 @@ export function createNameApp({ React, evaluationService }) {
           React.createElement('span', null, '合計'),
           React.createElement('strong', null, `${metrics.total}画`)
         ),
-        React.createElement('span', { className: 'fortune-badge' }, metrics.fortune.label)
+        React.createElement(
+          'span',
+          {
+            className: 'fortune-badge',
+            style: {
+              borderColor: metrics.fortune.accent,
+              color: metrics.fortune.accent
+            }
+          },
+          metrics.fortune.label
+        )
       )
     );
   }
@@ -53,7 +73,7 @@ export function createNameApp({ React, evaluationService }) {
       return evaluationService.evaluate({ surname, given });
     }, [surname, given]);
 
-    const fortuneTone = evaluation ? evaluation.fortune : null;
+    const fortuneTone = evaluation ? evaluation.overall.fortune : null;
 
     return React.createElement(
       'div',
@@ -109,20 +129,34 @@ export function createNameApp({ React, evaluationService }) {
           React.createElement(
             'div',
             { className: 'stroke-container' },
-            renderStrokeList('苗字の画数', evaluation && evaluation.surnameMetrics),
-            renderStrokeList('名前の画数', evaluation && evaluation.givenMetrics)
+            renderStrokeList('苗字の画数', evaluation && evaluation.surname),
+            renderStrokeList('名前の画数', evaluation && evaluation.given)
           ),
           evaluation
             ? React.createElement(
                 'div',
                 { className: 'total-section' },
-                React.createElement('span', { className: 'fortune-badge inverted' }, evaluation.totalFortune.label),
+                React.createElement(
+                  'span',
+                  {
+                    className: 'fortune-badge inverted',
+                    style: {
+                      borderColor: evaluation.overall.fortune.accent
+                        ? `${evaluation.overall.fortune.accent}55`
+                        : undefined,
+                      backgroundColor: evaluation.overall.fortune.accent
+                        ? `${evaluation.overall.fortune.accent}26`
+                        : undefined
+                    }
+                  },
+                  evaluation.overall.fortune.label
+                ),
                 React.createElement('h3', null, '姓名全体の画数'),
-                React.createElement('strong', null, `${evaluation.total}画`),
+                React.createElement('strong', null, `${evaluation.overall.total}画`),
                 React.createElement(
                   'p',
                   { className: 'total-tone' },
-                  `${evaluation.totalFortune.tone}の運気が巡っています。`
+                  `${evaluation.overall.fortune.tone}の運気が巡っています。`
                 )
               )
             : null
