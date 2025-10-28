@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FORTUNE_DEFINITIONS } from '../src/constants/fortunes.js';
 import { createEvaluationService } from '../src/services/evaluationService.js';
 import { clearStrokeCache } from '../src/utils/strokeLookup.js';
 
@@ -47,6 +48,9 @@ describe('createEvaluationService', () => {
     const second = await service.evaluate({ surname: '山田', given: '太郎' });
     expect(second.fortunes.full.label).toEqual(first.fortunes.full.label);
     expect(second.total).toBe(first.total);
+    expect(FORTUNE_DEFINITIONS.map((fortune) => fortune.label)).toContain(
+      first.fortunes.full.label
+    );
     expect(fetchStub).toHaveBeenCalled();
   });
 
@@ -66,10 +70,6 @@ describe('createEvaluationService', () => {
   });
 
   it('exposes the configured fortunes', () => {
-    expect(service.fortunes).toHaveLength(3);
-    const labels = service.fortunes.map((fortune) => fortune.label);
-    expect(labels).toContain('大吉');
-    expect(labels).toContain('大大吉');
-    expect(labels).toContain('大大大吉');
+    expect(service.fortunes).toEqual(FORTUNE_DEFINITIONS);
   });
 });

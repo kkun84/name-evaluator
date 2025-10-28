@@ -1,11 +1,6 @@
+import { getFortunes, FORTUNE_DEFINITIONS } from '../constants/fortunes.js';
 import { calculateNameStrokes } from '../utils/strokes.js';
 import { modularPow, SMALL_PRIMES } from '../utils/primes.js';
-
-const FORTUNES = [
-  { key: 'excellent', label: '大吉', tone: 'success', accent: '#d9333f' },
-  { key: 'grand', label: '大大吉', tone: 'radiance', accent: '#ef8f2b' },
-  { key: 'supreme', label: '大大大吉', tone: 'brilliance', accent: '#f6c445' }
-];
 
 const MODULUS = 251n;
 
@@ -36,7 +31,7 @@ function selectFortune(value, ...salts) {
     const hashed = modularPow(prime, normalizeSeedPart(salt), MODULUS);
     return (accumulator + hashed) % MODULUS;
   }, base);
-  return FORTUNES[Number(salted % BigInt(FORTUNES.length))];
+  return FORTUNE_DEFINITIONS[Number(salted % BigInt(FORTUNE_DEFINITIONS.length))];
 }
 
 function enrichMetrics(metrics, scopeLabel) {
@@ -78,6 +73,6 @@ export function createEvaluationService(options = {}) {
 
   return {
     evaluate,
-    fortunes: [...FORTUNES]
+    fortunes: getFortunes()
   };
 }
