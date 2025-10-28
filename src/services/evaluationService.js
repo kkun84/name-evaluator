@@ -9,6 +9,10 @@ const FORTUNES = [
 
 const MODULUS = 251n;
 
+function selectCharacterFortune(strokes, char) {
+  return selectFortune(strokes, char);
+}
+
 function normalizeSeedPart(part) {
   if (part === undefined || part === null) {
     return 0n;
@@ -40,9 +44,9 @@ function selectFortune(value, ...salts) {
 }
 
 function enrichMetrics(metrics, scopeLabel) {
-  const breakdown = metrics.breakdown.map((item, index) => ({
+  const breakdown = metrics.breakdown.map((item) => ({
     ...item,
-    fortune: selectFortune(item.strokes, scopeLabel, index, item.char)
+    fortune: selectCharacterFortune(item.strokes, item.char)
   }));
   return {
     ...metrics,
