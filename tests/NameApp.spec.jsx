@@ -1,14 +1,50 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createNameApp } from '../src/components/NameApp.js';
 import { createEvaluationService } from '../src/services/evaluationService.js';
+import { clearStrokeCache } from '../src/utils/strokeLookup.js';
 
-const evaluationService = createEvaluationService();
-const NameApp = createNameApp({ React, evaluationService });
+const STUB_STROKES = {
+  山: 3,
+  田: 5,
+  太: 4,
+  郎: 9,
+  花: 7,
+  子: 3
+};
+
+function createFetchStub() {
+  return vi.fn(async (url) => {
+    const decodedChar = decodeURIComponent(url.split('/').pop());
+    if (!(decodedChar in STUB_STROKES)) {
+      return {
+        ok: false,
+        status: 404,
+        json: async () => ({})
+      };
+    }
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ stroke_count: STUB_STROKES[decodedChar] })
+    };
+  });
+}
 
 describe('NameApp component', () => {
+  let fetchStub;
+  let evaluationService;
+  let NameApp;
+
+  beforeEach(() => {
+    clearStrokeCache();
+    fetchStub = createFetchStub();
+    evaluationService = createEvaluationService({ strokeOptions: { fetchImpl: fetchStub } });
+    NameApp = createNameApp({ React, evaluationService });
+  });
+
   it('shows instructions before any input', () => {
     render(React.createElement(NameApp));
     expect(

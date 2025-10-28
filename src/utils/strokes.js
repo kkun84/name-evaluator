@@ -1,18 +1,17 @@
-const BASE_STROKE = 3;
-const STROKE_VARIATION = 23;
+import { resolveStrokeCount } from './strokeLookup.js';
 
-export function calculateCharacterStroke(char) {
-  const codePoint = char.codePointAt(0);
-  const weighted = (codePoint * 1315423911) >>> 0;
-  return (weighted % STROKE_VARIATION) + BASE_STROKE;
+export async function calculateCharacterStroke(char, options) {
+  return resolveStrokeCount(char, options);
 }
 
-export function calculateNameStrokes(text) {
+export async function calculateNameStrokes(text, options) {
   const characters = Array.from(text || '');
-  const breakdown = characters.map((char) => ({
-    char,
-    strokes: calculateCharacterStroke(char)
-  }));
+  const breakdown = await Promise.all(
+    characters.map(async (char) => ({
+      char,
+      strokes: await calculateCharacterStroke(char, options)
+    }))
+  );
   const total = breakdown.reduce((sum, item) => sum + item.strokes, 0);
   return { breakdown, total };
 }
