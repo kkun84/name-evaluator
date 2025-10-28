@@ -12,6 +12,48 @@ const FORTUNES = [
 
 const MODULUS = 251n;
 
+function normalizeSeedPart(part) {
+  if (part === undefined || part === null) {
+    return 0n;
+  }
+  if (typeof part === 'bigint') {
+    return part % MODULUS;
+  }
+  if (typeof part === 'number') {
+    return BigInt(part % Number(MODULUS));
+  }
+  if (typeof part === 'string') {
+    let acc = 0n;
+    for (const char of part) {
+      acc = (acc * 131n + BigInt(char.codePointAt(0))) % MODULUS;
+    }
+    return acc;
+  }
+  return normalizeSeedPart(String(part));
+}
+
+function selectFortune(value, ...salts) {
+  const base = modularPow(SMALL_PRIMES[0], BigInt(value), MODULUS);
+  const salted = salts.reduce((accumulator, salt, index) => {
+    const prime = SMALL_PRIMES[(index + 1) % SMALL_PRIMES.length];
+    const hashed = modularPow(prime, normalizeSeedPart(salt), MODULUS);
+    return (accumulator + hashed) % MODULUS;
+  }, base);
+  return FORTUNES[Number(salted % BigInt(FORTUNES.length))];
+}
+
+function enrichMetrics(metrics, scopeLabel) {
+  const breakdown = metrics.breakdown.map((item, index) => ({
+    ...item,
+    fortune: selectFortune(item.strokes, scopeLabel, index, item.char)
+  }));
+  return {
+    ...metrics,
+    breakdown,
+    fortune: selectFortune(metrics.total, scopeLabel, 'total')
+  };
+}
+
 export function createEvaluationService(options = {}) {
   const { strokeOptions } = options;
 
@@ -20,21 +62,20 @@ export function createEvaluationService(options = {}) {
     const givenMetrics = await calculateNameStrokes(given, strokeOptions);
     const total = surnameMetrics.total + givenMetrics.total;
 
-    const powerA = modularPow(SMALL_PRIMES[0], BigInt(surnameMetrics.total), MODULUS);
-    const powerB = modularPow(SMALL_PRIMES[1], BigInt(givenMetrics.total), MODULUS);
-    const powerC = modularPow(SMALL_PRIMES[2], BigInt(total), MODULUS);
-    const composite = (
-      powerA * SMALL_PRIMES[3] +
-      powerB * SMALL_PRIMES[4] +
-      powerC * SMALL_PRIMES[5]
-    ) % MODULUS;
-    const fortuneIndex = Number(composite % BigInt(FORTUNES.length));
+    const evaluatedSurname = enrichMetrics(surnameMetrics, 'surname');
+    const evaluatedGiven = enrichMetrics(givenMetrics, 'given');
+
+    const overallFortune = selectFortune(total, 'full');
 
     return {
-      surnameMetrics,
-      givenMetrics,
+      surnameMetrics: evaluatedSurname,
+      givenMetrics: evaluatedGiven,
       total,
-      fortune: FORTUNES[fortuneIndex]
+      fortunes: {
+        surname: evaluatedSurname.fortune,
+        given: evaluatedGiven.fortune,
+        full: overallFortune
+      }
     };
   }
 

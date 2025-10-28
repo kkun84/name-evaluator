@@ -48,7 +48,7 @@ describe('NameApp component', () => {
   it('shows instructions before any input', () => {
     render(React.createElement(NameApp));
     expect(
-      screen.getByText('苗字と名前を入力し、「結果を表示」を押すと結果が表示されます。')
+      screen.getByText('名字と名前を入力し、「結果を表示」を押すと結果が表示されます。')
     ).toBeInTheDocument();
   });
 
@@ -56,7 +56,7 @@ describe('NameApp component', () => {
     render(React.createElement(NameApp));
     const user = userEvent.setup();
 
-    const surnameInput = screen.getByLabelText('苗字');
+    const surnameInput = screen.getByLabelText('名字');
     const givenInput = screen.getByLabelText('名前');
 
     await act(async () => {
@@ -65,7 +65,7 @@ describe('NameApp component', () => {
       await user.click(screen.getByRole('button', { name: '結果を表示' }));
     });
 
-    expect(await screen.findByText('苗字の画数')).toBeInTheDocument();
+    expect(await screen.findByText('名字の画数')).toBeInTheDocument();
     expect(await screen.findByText('名前の画数')).toBeInTheDocument();
     expect(await screen.findByText('姓名全体の画数')).toBeInTheDocument();
   });

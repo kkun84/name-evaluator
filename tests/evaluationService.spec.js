@@ -45,7 +45,7 @@ describe('createEvaluationService', () => {
   it('returns deterministic results for the same input', async () => {
     const first = await service.evaluate({ surname: '山田', given: '太郎' });
     const second = await service.evaluate({ surname: '山田', given: '太郎' });
-    expect(second.fortune.label).toEqual(first.fortune.label);
+    expect(second.fortunes.full.label).toEqual(first.fortunes.full.label);
     expect(second.total).toBe(first.total);
     expect(fetchStub).toHaveBeenCalled();
   });
@@ -60,6 +60,8 @@ describe('createEvaluationService', () => {
     const result = await service.evaluate({ surname: '佐藤', given: '光' });
     expect(result.surnameMetrics.breakdown.length).toBe(2);
     expect(result.givenMetrics.breakdown.length).toBe(1);
+    expect(result.surnameMetrics.fortune).toBeDefined();
+    expect(result.givenMetrics.breakdown[0].fortune).toBeDefined();
     expect(result.total).toBeGreaterThan(0);
   });
 
