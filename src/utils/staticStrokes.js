@@ -359,12 +359,6 @@ export function getStaticStrokeCount(char) {
   if (kanaValue !== undefined) {
     return kanaValue;
   }
-  if (soundMarks.has(char)) {
-    return soundMarks.get(char);
-  }
-  if (iterationMarks.has(char)) {
-    return iterationMarks.get(char);
-  }
   if (asciiPunctuation.has(normalizedFullWidth)) {
     return asciiPunctuation.get(normalizedFullWidth);
   }
