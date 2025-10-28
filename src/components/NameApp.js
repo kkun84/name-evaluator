@@ -126,8 +126,7 @@ export function createNameApp({ React, evaluationService }) {
       React.createElement(
         'header',
         null,
-        React.createElement('h1', null, '姓名判断'),
-        React.createElement('p', null, '日本の伝統的な姓名判断をモダンなUIでお届けします。')
+        React.createElement('h1', null, '姓名判断')
       ),
       React.createElement(
         'main',
@@ -164,12 +163,7 @@ export function createNameApp({ React, evaluationService }) {
             ? React.createElement(
                 'div',
                 { className: 'fortune-panel', style: { borderColor: fortuneTone.accent } },
-                React.createElement('span', { className: 'fortune-label' }, fortuneTone.label),
-                React.createElement(
-                  'p',
-                  { className: 'fortune-tone' },
-                  `${fortuneTone.tone}の気配が感じられます。`
-                )
+                React.createElement('span', { className: 'fortune-label' }, fortuneTone.label)
               )
             : React.createElement(
                 'div',
@@ -179,7 +173,7 @@ export function createNameApp({ React, evaluationService }) {
                   null,
                   error
                     ? error
-                    : '名字と名前を入力し、「結果を表示」を押すと結果が表示されます。'
+                    : 'ここに結果が表示されます。'
                 )
               )
         ),
@@ -216,15 +210,6 @@ export function createNameApp({ React, evaluationService }) {
                 : null
             )
           : null
-      ),
-      React.createElement(
-        'footer',
-        null,
-        React.createElement(
-          'p',
-          null,
-          '結果は画数に基づくアルゴリズムで算出しています。同じ名前には常に同じ結果が表示されます。'
-        )
       )
     );
   }
