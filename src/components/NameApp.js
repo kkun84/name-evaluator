@@ -23,7 +23,24 @@ export function createNameApp({ React, evaluationService }) {
             'li',
             { key: `${item.char}-${index}` },
             React.createElement('span', { className: 'char' }, item.char),
-            React.createElement('span', { className: 'stroke' }, `${item.strokes}画`)
+            React.createElement(
+              'span',
+              { className: 'char-details' },
+              React.createElement('span', { className: 'stroke' }, `${item.strokes}画`),
+              item.fortune
+                ? React.createElement(
+                    'span',
+                    {
+                      className: 'fortune-chip',
+                      style: {
+                        borderColor: item.fortune.accent,
+                        color: item.fortune.accent
+                      }
+                    },
+                    item.fortune.label
+                  )
+                : null
+            )
           )
         )
       ),
@@ -31,7 +48,24 @@ export function createNameApp({ React, evaluationService }) {
         'div',
         { className: 'stroke-total' },
         React.createElement('span', null, '合計'),
-        React.createElement('strong', null, `${metrics.total}画`)
+        React.createElement(
+          'span',
+          { className: 'char-details' },
+          React.createElement('strong', null, `${metrics.total}画`),
+          metrics.fortune
+            ? React.createElement(
+                'span',
+                {
+                  className: 'fortune-chip',
+                  style: {
+                    borderColor: metrics.fortune.accent,
+                    color: metrics.fortune.accent
+                  }
+                },
+                metrics.fortune.label
+              )
+            : null
+        )
       )
     );
   }
@@ -84,7 +118,7 @@ export function createNameApp({ React, evaluationService }) {
       }
     }
 
-    const fortuneTone = evaluation ? evaluation.fortune : null;
+    const fortuneTone = evaluation && evaluation.fortunes ? evaluation.fortunes.full : null;
 
     return React.createElement(
       'div',
@@ -104,7 +138,7 @@ export function createNameApp({ React, evaluationService }) {
           React.createElement(
             'form',
             { onSubmit: handleSubmit },
-            React.createElement('label', { htmlFor: 'surname' }, '苗字'),
+            React.createElement('label', { htmlFor: 'surname' }, '名字'),
             React.createElement('input', {
               id: 'surname',
               type: 'text',
@@ -145,7 +179,7 @@ export function createNameApp({ React, evaluationService }) {
                   null,
                   error
                     ? error
-                    : '苗字と名前を入力し、「結果を表示」を押すと結果が表示されます。'
+                    : '名字と名前を入力し、「結果を表示」を押すと結果が表示されます。'
                 )
               )
         ),
@@ -156,7 +190,7 @@ export function createNameApp({ React, evaluationService }) {
               React.createElement(
                 'div',
                 { className: 'stroke-container' },
-                renderStrokeList('苗字の画数', evaluation && evaluation.surnameMetrics),
+                renderStrokeList('名字の画数', evaluation && evaluation.surnameMetrics),
                 renderStrokeList('名前の画数', evaluation && evaluation.givenMetrics)
               ),
               evaluation
@@ -164,7 +198,20 @@ export function createNameApp({ React, evaluationService }) {
                     'div',
                     { className: 'total-section' },
                     React.createElement('h3', null, '姓名全体の画数'),
-                    React.createElement('strong', null, `${evaluation.total}画`)
+                    React.createElement('div', { className: 'total-score' }, `${evaluation.total}画`),
+                    fortuneTone
+                      ? React.createElement(
+                          'span',
+                          {
+                            className: 'fortune-chip prominent',
+                            style: {
+                              borderColor: fortuneTone.accent,
+                              color: fortuneTone.accent
+                            }
+                          },
+                          fortuneTone.label
+                        )
+                      : null
                   )
                 : null
             )
