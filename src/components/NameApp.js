@@ -75,14 +75,16 @@ export function createNameApp({ React, evaluationService }) {
     const [given, setGiven] = useState('');
     const [evaluation, setEvaluation] = useState(null);
     const [hasSubmitted, setHasSubmitted] = useState(false);
+    const [hasPendingChanges, setHasPendingChanges] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     function updateInput(setter) {
       return (event) => {
         setter(event.target.value);
-        setHasSubmitted(false);
-        setEvaluation(null);
+        if (hasSubmitted && evaluation) {
+          setHasPendingChanges(true);
+        }
         setError(null);
       };
     }
@@ -95,11 +97,13 @@ export function createNameApp({ React, evaluationService }) {
       if (!trimmedSurname && !trimmedGiven) {
         setEvaluation(null);
         setHasSubmitted(true);
+        setHasPendingChanges(false);
         setIsLoading(false);
         setError(null);
         return;
       }
 
+      setHasPendingChanges(false);
       setIsLoading(true);
       setError(null);
 
@@ -109,11 +113,14 @@ export function createNameApp({ React, evaluationService }) {
           given: trimmedGiven
         });
         setEvaluation(nextEvaluation);
+        setHasSubmitted(true);
+        setHasPendingChanges(false);
       } catch (lookupError) {
         setEvaluation(null);
         setError('画数の取得に失敗しました。通信環境を確認してください。');
-      } finally {
         setHasSubmitted(true);
+        setHasPendingChanges(false);
+      } finally {
         setIsLoading(false);
       }
     }
@@ -163,7 +170,14 @@ export function createNameApp({ React, evaluationService }) {
             ? React.createElement(
                 'div',
                 { className: 'fortune-panel', style: { borderColor: fortuneTone.accent } },
-                React.createElement('span', { className: 'fortune-label' }, fortuneTone.label)
+                React.createElement('span', { className: 'fortune-label' }, fortuneTone.label),
+                hasPendingChanges && evaluation
+                  ? React.createElement(
+                      'p',
+                      { className: 'pending-hint' },
+                      '入力内容が変更されています。最新の結果を表示するには「結果を表示」を押してください。'
+                    )
+                  : null
               )
             : React.createElement(
                 'div',
