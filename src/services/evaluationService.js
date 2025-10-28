@@ -12,10 +12,12 @@ const FORTUNES = [
 
 const MODULUS = 251n;
 
-export function createEvaluationService() {
-  function evaluate({ surname, given }) {
-    const surnameMetrics = calculateNameStrokes(surname);
-    const givenMetrics = calculateNameStrokes(given);
+export function createEvaluationService(options = {}) {
+  const { strokeOptions } = options;
+
+  async function evaluate({ surname, given }) {
+    const surnameMetrics = await calculateNameStrokes(surname, strokeOptions);
+    const givenMetrics = await calculateNameStrokes(given, strokeOptions);
     const total = surnameMetrics.total + givenMetrics.total;
 
     const powerA = modularPow(SMALL_PRIMES[0], BigInt(surnameMetrics.total), MODULUS);

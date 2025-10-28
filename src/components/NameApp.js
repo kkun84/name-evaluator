@@ -41,16 +41,19 @@ export function createNameApp({ React, evaluationService }) {
     const [given, setGiven] = useState('');
     const [evaluation, setEvaluation] = useState(null);
     const [hasSubmitted, setHasSubmitted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     function updateInput(setter) {
       return (event) => {
         setter(event.target.value);
         setHasSubmitted(false);
         setEvaluation(null);
+        setError(null);
       };
     }
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
       event.preventDefault();
       const trimmedSurname = surname.trim();
       const trimmedGiven = given.trim();
@@ -58,16 +61,27 @@ export function createNameApp({ React, evaluationService }) {
       if (!trimmedSurname && !trimmedGiven) {
         setEvaluation(null);
         setHasSubmitted(true);
+        setIsLoading(false);
+        setError(null);
         return;
       }
 
-      const nextEvaluation = evaluationService.evaluate({
-        surname: trimmedSurname,
-        given: trimmedGiven
-      });
+      setIsLoading(true);
+      setError(null);
 
-      setEvaluation(nextEvaluation);
-      setHasSubmitted(true);
+      try {
+        const nextEvaluation = await evaluationService.evaluate({
+          surname: trimmedSurname,
+          given: trimmedGiven
+        });
+        setEvaluation(nextEvaluation);
+      } catch (lookupError) {
+        setEvaluation(null);
+        setError('画数の取得に失敗しました。通信環境を確認してください。');
+      } finally {
+        setHasSubmitted(true);
+        setIsLoading(false);
+      }
     }
 
     const fortuneTone = evaluation ? evaluation.fortune : null;
@@ -108,11 +122,11 @@ export function createNameApp({ React, evaluationService }) {
             }),
             React.createElement(
               'button',
-              { type: 'submit', className: 'submit-button' },
-              '結果を表示'
+              { type: 'submit', className: 'submit-button', disabled: isLoading },
+              isLoading ? '取得中…' : '結果を表示'
             )
           ),
-          hasSubmitted && fortuneTone
+          hasSubmitted && fortuneTone && !error
             ? React.createElement(
                 'div',
                 { className: 'fortune-panel', style: { borderColor: fortuneTone.accent } },
@@ -129,7 +143,9 @@ export function createNameApp({ React, evaluationService }) {
                 React.createElement(
                   'p',
                   null,
-                  '苗字と名前を入力し、「結果を表示」を押すと結果が表示されます。'
+                  error
+                    ? error
+                    : '苗字と名前を入力し、「結果を表示」を押すと結果が表示されます。'
                 )
               )
         ),
