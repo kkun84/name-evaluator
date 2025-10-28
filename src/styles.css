@@ -34,30 +34,39 @@ header p {
 }
 
 main {
+  margin-top: 24px;
+}
+
+.layout-grid {
   display: grid;
   gap: 24px;
 }
 
-.form-section {
-  background: rgba(255, 255, 255, 0.9);
+.input-column {
+  display: grid;
+  gap: 16px;
+}
+
+.form-panel,
+.summary-panel,
+.result-panel {
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.form-panel form {
   display: grid;
   gap: 12px;
 }
 
-.form-section form {
-  display: grid;
-  gap: 12px;
-}
-
-.form-section label {
+.form-panel label {
   font-weight: 600;
   color: #444;
 }
 
-.form-section input {
+.form-panel input {
   font-size: 1.1rem;
   padding: 12px 14px;
   border: 1px solid #d0c2b0;
@@ -65,19 +74,53 @@ main {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-section input:focus {
+.form-panel input:focus {
   outline: none;
   border-color: #d9333f;
   box-shadow: 0 0 0 3px rgba(217, 51, 63, 0.2);
 }
 
-.fortune-panel {
-  border-left: 8px solid #d9333f;
-  background: #fffdfa;
-  border-radius: 12px;
-  padding: 16px 20px;
+.summary-panel {
+  border-left: 6px solid #d9333f;
   display: grid;
-  gap: 6px;
+  gap: 12px;
+}
+
+.summary-panel.placeholder {
+  border-left-color: #b0a799;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.summary-message {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.summary-message.muted {
+  color: #666;
+}
+
+.summary-message.error {
+  color: #c23b3b;
+  font-weight: 600;
+}
+
+.overall-score {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.overall-score-value {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #d9333f;
+}
+
+.overall-score-caption {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  color: #6b5a4a;
 }
 
 .pending-hint {
@@ -88,11 +131,6 @@ main {
   color: #8a4a32;
   font-size: 0.9rem;
   line-height: 1.4;
-}
-
-.fortune-panel.placeholder {
-  border-left-color: #b0a799;
-  color: #777;
 }
 
 .submit-button {
@@ -122,18 +160,45 @@ main {
   font-weight: 700;
 }
 
-.fortune-tone {
-  margin: 0;
-  font-size: 1rem;
+.result-column {
+  display: grid;
 }
 
-.result-section {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+.result-panel {
   display: grid;
   gap: 24px;
+}
+
+.result-panel.placeholder {
+  justify-items: center;
+  text-align: center;
+  color: #666;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px dashed #d0c2b0;
+  box-shadow: none;
+  padding: 48px 24px;
+}
+
+.result-overview {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(217, 51, 63, 0.12), rgba(239, 143, 43, 0.12));
+}
+
+.result-score {
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #d9333f;
+}
+
+.result-score-caption {
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: #5a4b3c;
 }
 
 .stroke-container {
@@ -226,30 +291,6 @@ main {
   background: #fff8f3;
 }
 
-.total-score {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.total-section {
-  text-align: center;
-  background: linear-gradient(135deg, rgba(217, 51, 63, 0.85), rgba(239, 143, 43, 0.85));
-  color: white;
-  border-radius: 16px;
-  padding: 18px 12px;
-}
-
-.total-section h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1rem;
-  letter-spacing: 0.08em;
-}
-
-.total-section strong {
-  font-size: 2rem;
-}
-
 footer {
   margin-top: 32px;
   text-align: center;
@@ -257,28 +298,29 @@ footer {
   font-size: 0.9rem;
 }
 
-@media (min-width: 768px) {
-  main {
-    grid-template-columns: 1fr 1fr;
+@media (min-width: 960px) {
+  .layout-grid {
+    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
     align-items: start;
   }
 
-  .form-section,
-  .result-section {
-    height: 100%;
+  .input-column {
+    position: sticky;
+    top: 24px;
+    height: fit-content;
   }
 
   .stroke-container {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   header h1 {
     font-size: 1.8rem;
   }
 
-  .form-section input {
+  .form-panel input {
     font-size: 1rem;
   }
 
