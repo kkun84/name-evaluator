@@ -50,6 +50,14 @@ describe('createEvaluationService', () => {
     expect(fetchStub).toHaveBeenCalled();
   });
 
+  it('returns the same fortune for identical consecutive characters', async () => {
+    const result = await service.evaluate({ surname: '田田', given: '' });
+    const [first, second] = result.surnameMetrics.breakdown;
+    expect(first.char).toBe('田');
+    expect(second.char).toBe('田');
+    expect(first.fortune.label).toEqual(second.fortune.label);
+  });
+
   it('differentiates inputs with different characters', async () => {
     const first = await service.evaluate({ surname: '山田', given: '太郎' });
     const second = await service.evaluate({ surname: '山田', given: '花子' });
