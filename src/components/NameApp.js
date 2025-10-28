@@ -1,19 +1,35 @@
 export function createNameApp({ React, evaluationService }) {
   const { useState } = React;
 
-  function renderStrokeList(label, metrics) {
+  function renderFortuneChip(fortune, className = '') {
+    if (!fortune) {
+      return null;
+    }
+
+    const classes = ['fortune-chip'];
+    if (className) {
+      classes.push(className);
+    }
+
+    return React.createElement('span', {
+      className: classes.join(' '),
+      style: { borderColor: fortune.accent, color: fortune.accent }
+    }, fortune.label);
+  }
+
+  function renderStrokeGroup(label, metrics) {
     if (!metrics || metrics.breakdown.length === 0) {
       return React.createElement(
-        'div',
-        { className: 'stroke-group empty' },
+        'section',
+        { className: 'stroke-card empty' },
         React.createElement('h3', null, label),
         React.createElement('p', null, '文字が入力されていません。')
       );
     }
 
     return React.createElement(
-      'div',
-      { className: 'stroke-group' },
+      'section',
+      { className: 'stroke-card' },
       React.createElement('h3', null, label),
       React.createElement(
         'ul',
@@ -22,49 +38,25 @@ export function createNameApp({ React, evaluationService }) {
           React.createElement(
             'li',
             { key: `${item.char}-${index}` },
-            React.createElement('span', { className: 'char' }, item.char),
+            React.createElement('span', { className: 'stroke-char' }, item.char),
             React.createElement(
               'span',
-              { className: 'char-details' },
-              React.createElement('span', { className: 'stroke' }, `${item.strokes}画`),
-              item.fortune
-                ? React.createElement(
-                    'span',
-                    {
-                      className: 'fortune-chip',
-                      style: {
-                        borderColor: item.fortune.accent,
-                        color: item.fortune.accent
-                      }
-                    },
-                    item.fortune.label
-                  )
-                : null
+              { className: 'stroke-meta' },
+              React.createElement('span', { className: 'stroke-count' }, `${item.strokes}画`),
+              renderFortuneChip(item.fortune)
             )
           )
         )
       ),
       React.createElement(
-        'div',
+        'footer',
         { className: 'stroke-total' },
         React.createElement('span', null, '合計'),
         React.createElement(
           'span',
-          { className: 'char-details' },
+          { className: 'stroke-meta' },
           React.createElement('strong', null, `${metrics.total}画`),
-          metrics.fortune
-            ? React.createElement(
-                'span',
-                {
-                  className: 'fortune-chip',
-                  style: {
-                    borderColor: metrics.fortune.accent,
-                    color: metrics.fortune.accent
-                  }
-                },
-                metrics.fortune.label
-              )
-            : null
+          renderFortuneChip(metrics.fortune)
         )
       )
     );
@@ -127,122 +119,122 @@ export function createNameApp({ React, evaluationService }) {
 
     const fortuneTone = evaluation && evaluation.fortunes ? evaluation.fortunes.full : null;
 
-    function renderSummaryPanel() {
-      const panelClassNames = ['summary-panel'];
-      const panelStyle = fortuneTone && !error ? { borderColor: fortuneTone.accent } : {};
+    function renderSummaryCard() {
+      const classNames = ['results-summary'];
+      const style = fortuneTone && !error ? { borderColor: fortuneTone.accent } : {};
 
       if (!fortuneTone || error) {
-        panelClassNames.push('placeholder');
+        classNames.push('placeholder');
       }
-
-      let content;
 
       if (error) {
-        content = React.createElement('p', { className: 'summary-message error' }, error);
-      } else if (!hasSubmitted) {
-        content = React.createElement(
-          'p',
-          { className: 'summary-message muted' },
-          '姓名を入力して「結果を表示」を押すと、総合結果がここに表示されます。'
-        );
-      } else if (!evaluation) {
-        content = React.createElement(
-          'p',
-          { className: 'summary-message muted' },
-          '文字が入力されていません。'
-        );
-      } else {
-        content = React.createElement(
-          React.Fragment,
-          null,
-          React.createElement('span', { className: 'fortune-label' }, fortuneTone.label),
-          React.createElement(
-            'div',
-            { className: 'overall-score' },
-            React.createElement('span', { className: 'overall-score-value' }, `${evaluation.total}画`),
-            React.createElement('span', { className: 'overall-score-caption' }, '総合画数')
-          ),
-          hasPendingChanges
-            ? React.createElement(
-                'p',
-                { className: 'pending-hint' },
-                '入力内容が変更されています。最新の結果を表示するには「結果を表示」を押してください。'
-              )
-            : null
+        return React.createElement(
+          'section',
+          { className: classNames.join(' '), style },
+          React.createElement('p', { className: 'summary-message error' }, error)
         );
       }
 
-      return React.createElement(
-        'div',
-        { className: panelClassNames.join(' '), style: panelStyle },
-        content
-      );
-    }
-
-    function renderResultPanel() {
-      if (evaluation) {
+      if (!hasSubmitted) {
         return React.createElement(
-          'div',
-          { className: 'result-panel' },
+          'section',
+          { className: classNames.join(' '), style },
           React.createElement(
-            'div',
-            { className: 'result-overview' },
-            fortuneTone
-              ? React.createElement(
-                  'span',
-                  {
-                    className: 'fortune-chip prominent',
-                    style: { borderColor: fortuneTone.accent, color: fortuneTone.accent }
-                  },
-                  fortuneTone.label
-                )
-              : null,
-            React.createElement('div', { className: 'result-score' }, `${evaluation.total}画`),
-            React.createElement('span', { className: 'result-score-caption' }, '姓名全体の画数')
-          ),
-          React.createElement(
-            'div',
-            { className: 'stroke-container' },
-            renderStrokeList('名字の画数', evaluation.surnameMetrics),
-            renderStrokeList('名前の画数', evaluation.givenMetrics)
+            'p',
+            { className: 'summary-message muted' },
+            '姓名を入力して「結果を表示」を押すと、総合結果がここに表示されます。'
           )
         );
       }
 
-      const message = hasSubmitted
-        ? '入力された文字がありません。姓名を入力して結果を確認してください。'
-        : 'ここに詳細な結果が表示されます。';
+      if (!evaluation) {
+        return React.createElement(
+          'section',
+          { className: classNames.join(' '), style },
+          React.createElement('p', { className: 'summary-message muted' }, '文字が入力されていません。')
+        );
+      }
 
       return React.createElement(
-        'div',
-        { className: 'result-panel placeholder' },
-        React.createElement('p', null, message)
+        'section',
+        { className: classNames.join(' '), style },
+        React.createElement('div', { className: 'summary-header' }, renderFortuneChip(fortuneTone, 'prominent')),
+        React.createElement(
+          'div',
+          { className: 'summary-score' },
+          React.createElement('span', { className: 'summary-score-value' }, `${evaluation.total}画`),
+          React.createElement('span', { className: 'summary-score-caption' }, '姓名全体の画数')
+        ),
+        hasPendingChanges
+          ? React.createElement(
+              'p',
+              { className: 'pending-hint' },
+              '入力内容が変更されています。最新の結果を表示するには「結果を表示」を押してください。'
+            )
+          : null
+      );
+    }
+
+    function renderDetailCard() {
+      if (!evaluation) {
+        const message = hasSubmitted
+          ? '入力された文字がありません。姓名を入力して結果を確認してください。'
+          : 'ここに詳細な結果が表示されます。';
+
+        return React.createElement(
+          'section',
+          { className: 'results-detail placeholder' },
+          React.createElement('p', null, message)
+        );
+      }
+
+      return React.createElement(
+        'section',
+        { className: 'results-detail' },
+        React.createElement(
+          'header',
+          { className: 'detail-overview' },
+          React.createElement('h2', null, '画数の内訳'),
+          React.createElement(
+            'div',
+            { className: 'detail-total' },
+            React.createElement('span', { className: 'detail-total-label' }, '姓名全体'),
+            React.createElement('span', { className: 'detail-total-value' }, `${evaluation.total}画`)
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'stroke-columns' },
+          renderStrokeGroup('名字の画数', evaluation.surnameMetrics),
+          renderStrokeGroup('名前の画数', evaluation.givenMetrics)
+        )
       );
     }
 
     return React.createElement(
       'div',
-      { className: 'app-shell' },
+      { className: 'name-app' },
       React.createElement(
         'header',
-        null,
-        React.createElement('h1', null, '姓名判断')
+        { className: 'app-header' },
+        React.createElement('h1', null, '姓名判断'),
+        React.createElement('p', null, '名字と名前を入力して画数を調べましょう。')
       ),
       React.createElement(
         'main',
-        null,
+        { className: 'app-main' },
         React.createElement(
-          'div',
-          { className: 'layout-grid' },
+          'section',
+          { className: 'form-section' },
           React.createElement(
-            'section',
-            { className: 'input-column' },
+            'form',
+            { className: 'name-form', onSubmit: handleSubmit },
             React.createElement(
               'div',
-              { className: 'form-panel' },
+              { className: 'input-row' },
               React.createElement(
-                'form',
-                { onSubmit: handleSubmit },
+                'div',
+                { className: 'input-field' },
                 React.createElement('label', { htmlFor: 'surname' }, '名字'),
                 React.createElement('input', {
                   id: 'surname',
@@ -250,7 +242,11 @@ export function createNameApp({ React, evaluationService }) {
                   value: surname,
                   onChange: updateInput(setSurname),
                   placeholder: '山田'
-                }),
+                })
+              ),
+              React.createElement(
+                'div',
+                { className: 'input-field' },
                 React.createElement('label', { htmlFor: 'given' }, '名前'),
                 React.createElement('input', {
                   id: 'given',
@@ -258,20 +254,28 @@ export function createNameApp({ React, evaluationService }) {
                   value: given,
                   onChange: updateInput(setGiven),
                   placeholder: '太郎'
-                }),
+                })
+              ),
+              React.createElement(
+                'div',
+                { className: 'submit-field' },
                 React.createElement(
                   'button',
                   { type: 'submit', className: 'submit-button', disabled: isLoading },
                   isLoading ? '取得中…' : '結果を表示'
                 )
               )
-            ),
-            renderSummaryPanel()
-          ),
+            )
+          )
+        ),
+        React.createElement(
+          'section',
+          { className: 'results-section' },
           React.createElement(
-            'section',
-            { className: 'result-column' },
-            renderResultPanel()
+            'div',
+            { className: 'results-layout' },
+            renderSummaryCard(),
+            renderDetailCard()
           )
         )
       )
