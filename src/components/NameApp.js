@@ -1,5 +1,5 @@
 export function createNameApp({ React, evaluationService }) {
-  const { useState, useMemo } = React;
+  const { useEffect, useMemo, useState } = React;
 
   function renderStrokeList(label, metrics) {
     if (!metrics || metrics.breakdown.length === 0) {
@@ -39,15 +39,63 @@ export function createNameApp({ React, evaluationService }) {
   function NameApp() {
     const [surname, setSurname] = useState('');
     const [given, setGiven] = useState('');
+    const [evaluation, setEvaluation] = useState(null);
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const evaluation = useMemo(() => {
+    useEffect(() => {
+      let isActive = true;
+
       if (!surname && !given) {
-        return null;
+        setEvaluation(null);
+        setError(null);
+        setIsLoading(false);
+        return () => {
+          isActive = false;
+        };
       }
-      return evaluationService.evaluate({ surname, given });
-    }, [surname, given]);
+
+      setIsLoading(true);
+      setError(null);
+
+      evaluationService
+        .evaluate({ surname, given })
+        .then((result) => {
+          if (isActive) {
+            setEvaluation(result);
+          }
+        })
+        .catch((err) => {
+          if (isActive) {
+            setEvaluation(null);
+            setError(err);
+          }
+        })
+        .finally(() => {
+          if (isActive) {
+            setIsLoading(false);
+          }
+        });
+
+      return () => {
+        isActive = false;
+      };
+    }, [surname, given, evaluationService]);
 
     const fortuneTone = evaluation ? evaluation.fortune : null;
+
+    const statusMessage = useMemo(() => {
+      if (error) {
+        return '画数の取得に失敗しました。時間をおいて再度お試しください。';
+      }
+      if (isLoading) {
+        return '画数を取得しています…';
+      }
+      if (!surname && !given) {
+        return '苗字と名前を入力すると結果が表示されます。';
+      }
+      return null;
+    }, [error, isLoading, surname, given]);
 
     return React.createElement(
       'div',
@@ -80,7 +128,13 @@ export function createNameApp({ React, evaluationService }) {
             onChange: (event) => setGiven(event.target.value),
             placeholder: '太郎'
           }),
-          fortuneTone
+          statusMessage
+            ? React.createElement(
+                'div',
+                { className: 'fortune-panel placeholder' },
+                React.createElement('p', null, statusMessage)
+              )
+            : fortuneTone
             ? React.createElement(
                 'div',
                 { className: 'fortune-panel', style: { borderColor: fortuneTone.accent } },
@@ -94,7 +148,7 @@ export function createNameApp({ React, evaluationService }) {
             : React.createElement(
                 'div',
                 { className: 'fortune-panel placeholder' },
-                React.createElement('p', null, '苗字と名前を入力すると結果が表示されます。')
+                React.createElement('p', null, '結果を取得できませんでした。')
               )
         ),
         React.createElement(
