@@ -66,9 +66,10 @@ describe('createEvaluationService', () => {
   });
 
   it('exposes the configured fortunes', () => {
-    expect(service.fortunes).toHaveLength(6);
+    expect(service.fortunes).toHaveLength(3);
     const labels = service.fortunes.map((fortune) => fortune.label);
     expect(labels).toContain('大吉');
-    expect(labels).toContain('大凶');
+    expect(labels).toContain('大大吉');
+    expect(labels).toContain('大大大吉');
   });
 });
