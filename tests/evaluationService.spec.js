@@ -9,6 +9,7 @@ describe('createEvaluationService', () => {
     const second = service.evaluate({ surname: '山田', given: '太郎' });
     expect(second.fortune.label).toEqual(first.fortune.label);
     expect(second.total).toBe(first.total);
+    expect(second.totalFortune.label).toEqual(first.totalFortune.label);
   });
 
   it('differentiates inputs with different characters', () => {
@@ -22,6 +23,9 @@ describe('createEvaluationService', () => {
     expect(result.surnameMetrics.breakdown.length).toBe(2);
     expect(result.givenMetrics.breakdown.length).toBe(1);
     expect(result.total).toBeGreaterThan(0);
+    expect(result.surnameMetrics.breakdown[0].fortune).toHaveProperty('label');
+    expect(result.givenMetrics.fortune).toHaveProperty('label');
+    expect(result.totalFortune).toHaveProperty('tone');
   });
 
   it('exposes the configured fortunes', () => {

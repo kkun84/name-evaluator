@@ -128,8 +128,9 @@ main {
 
 .stroke-group li {
   display: flex;
-  justify-content: space-between;
-  padding: 8px 10px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
   border-radius: 8px;
   background: #f9f4ec;
 }
@@ -140,6 +141,21 @@ main {
 
 .stroke-group .stroke {
   color: #555;
+  margin-left: auto;
+}
+
+.fortune-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #d9333f;
+  color: #d9333f;
+  background: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .stroke-group.empty {
@@ -156,6 +172,13 @@ main {
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid #e2d6c2;
+  gap: 12px;
+}
+
+.stroke-total-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .stroke-total strong {
@@ -169,6 +192,8 @@ main {
   color: white;
   border-radius: 16px;
   padding: 18px 12px;
+  display: grid;
+  gap: 8px;
 }
 
 .total-section h3 {
@@ -179,6 +204,24 @@ main {
 
 .total-section strong {
   font-size: 2rem;
+}
+
+.total-section .fortune-badge {
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.fortune-badge.inverted {
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.total-tone {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
 }
 
 footer {

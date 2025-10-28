@@ -23,15 +23,21 @@ export function createNameApp({ React, evaluationService }) {
             'li',
             { key: `${item.char}-${index}` },
             React.createElement('span', { className: 'char' }, item.char),
-            React.createElement('span', { className: 'stroke' }, `${item.strokes}画`)
+            React.createElement('span', { className: 'stroke' }, `${item.strokes}画`),
+            React.createElement('span', { className: 'fortune-badge' }, item.fortune.label)
           )
         )
       ),
       React.createElement(
         'div',
         { className: 'stroke-total' },
-        React.createElement('span', null, '合計'),
-        React.createElement('strong', null, `${metrics.total}画`)
+        React.createElement(
+          'div',
+          { className: 'stroke-total-value' },
+          React.createElement('span', null, '合計'),
+          React.createElement('strong', null, `${metrics.total}画`)
+        ),
+        React.createElement('span', { className: 'fortune-badge' }, metrics.fortune.label)
       )
     );
   }
@@ -110,8 +116,14 @@ export function createNameApp({ React, evaluationService }) {
             ? React.createElement(
                 'div',
                 { className: 'total-section' },
+                React.createElement('span', { className: 'fortune-badge inverted' }, evaluation.totalFortune.label),
                 React.createElement('h3', null, '姓名全体の画数'),
-                React.createElement('strong', null, `${evaluation.total}画`)
+                React.createElement('strong', null, `${evaluation.total}画`),
+                React.createElement(
+                  'p',
+                  { className: 'total-tone' },
+                  `${evaluation.totalFortune.tone}の運気が巡っています。`
+                )
               )
             : null
         )

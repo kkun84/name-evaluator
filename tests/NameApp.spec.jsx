@@ -31,5 +31,9 @@ describe('NameApp component', () => {
     expect(await screen.findByText('苗字の画数')).toBeInTheDocument();
     expect(await screen.findByText('名前の画数')).toBeInTheDocument();
     expect(await screen.findByText('姓名全体の画数')).toBeInTheDocument();
+    const fortuneAppears = evaluationService.fortunes.some((fortune) =>
+      screen.queryAllByText(fortune.label).length > 0
+    );
+    expect(fortuneAppears).toBe(true);
   });
 });

@@ -12,27 +12,52 @@ const FORTUNES = [
 
 const MODULUS = 251n;
 
+function deriveFortuneIndex(strokes, seed) {
+  const basePrime = SMALL_PRIMES[seed % SMALL_PRIMES.length];
+  const mixPrime = SMALL_PRIMES[(seed * 3 + 5) % SMALL_PRIMES.length];
+  const exponent = BigInt(strokes + seed + 1);
+  const baseValue = modularPow(basePrime, exponent, MODULUS);
+  const weighted = (baseValue * mixPrime + BigInt(strokes + 7)) % MODULUS;
+  return Number(weighted % BigInt(FORTUNES.length));
+}
+
+function selectFortune(strokes, seed) {
+  return FORTUNES[deriveFortuneIndex(strokes, seed)];
+}
+
+function annotateBreakdown(breakdown, seedOffset) {
+  return breakdown.map((entry, index) => ({
+    ...entry,
+    fortune: selectFortune(entry.strokes, seedOffset + index)
+  }));
+}
+
 export function createEvaluationService() {
   function evaluate({ surname, given }) {
-    const surnameMetrics = calculateNameStrokes(surname);
-    const givenMetrics = calculateNameStrokes(given);
-    const total = surnameMetrics.total + givenMetrics.total;
+    const surnameRaw = calculateNameStrokes(surname);
+    const givenRaw = calculateNameStrokes(given);
 
-    const powerA = modularPow(SMALL_PRIMES[0], BigInt(surnameMetrics.total), MODULUS);
-    const powerB = modularPow(SMALL_PRIMES[1], BigInt(givenMetrics.total), MODULUS);
-    const powerC = modularPow(SMALL_PRIMES[2], BigInt(total), MODULUS);
-    const composite = (
-      powerA * SMALL_PRIMES[3] +
-      powerB * SMALL_PRIMES[4] +
-      powerC * SMALL_PRIMES[5]
-    ) % MODULUS;
-    const fortuneIndex = Number(composite % BigInt(FORTUNES.length));
+    const surnameMetrics = {
+      ...surnameRaw,
+      breakdown: annotateBreakdown(surnameRaw.breakdown, 11),
+      fortune: selectFortune(surnameRaw.total, 97)
+    };
+
+    const givenMetrics = {
+      ...givenRaw,
+      breakdown: annotateBreakdown(givenRaw.breakdown, 41),
+      fortune: selectFortune(givenRaw.total, 131)
+    };
+
+    const total = surnameMetrics.total + givenMetrics.total;
+    const totalFortune = selectFortune(total, 173);
 
     return {
       surnameMetrics,
       givenMetrics,
       total,
-      fortune: FORTUNES[fortuneIndex]
+      fortune: totalFortune,
+      totalFortune
     };
   }
 
