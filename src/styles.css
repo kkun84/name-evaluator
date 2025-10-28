@@ -80,6 +80,16 @@ main {
   gap: 6px;
 }
 
+.pending-hint {
+  margin: 4px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fff1e6;
+  color: #8a4a32;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
 .fortune-panel.placeholder {
   border-left-color: #b0a799;
   color: #777;
